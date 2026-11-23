@@ -1,3 +1,6 @@
+import java.util.Scanner
+
+
 fun main(args: Array<String>) {
-    println("Hello World!")
+    println("Приложение для работы с заметками")
 }
