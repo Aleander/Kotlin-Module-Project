@@ -1,4 +1,4 @@
-// Общая логика для арихивов (хранят заметки) и папок с архивами (хранят архивы)
+// Общая логика для архивов (хранят заметки) и папок с архивами (хранят архивы)
 class Directory<T> {
     var contentsMap = mutableMapOf<String, T>()
 
@@ -6,7 +6,7 @@ class Directory<T> {
     fun add(name: String, t: T): Boolean {
         if (name in contentsMap) return false
         else {
-            contentsMap.put(name, t)
+            contentsMap[name] = t
             return true
         }
     }
@@ -14,6 +14,10 @@ class Directory<T> {
     fun getContent(name: String): T? {
         if (name in contentsMap) return contentsMap[name]
         else return null
+    }
+    // Метод для получения списка названий (ключей)
+    fun getNamesList(): List<String> {
+        return contentsMap.keys.toList()
     }
 }
 
