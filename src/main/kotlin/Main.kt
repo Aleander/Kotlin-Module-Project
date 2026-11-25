@@ -1,12 +1,15 @@
 import java.util.Scanner
-val scanner = Scanner(System.`in`)
-fun main(args: Array<String>, n: String?) {
 
-    var dirArchive: Directory<Directory<String>> =
-        Directory() //Директория с архивами (одна на всю программу)
+val scanner = Scanner(System.`in`)
+var dirArchive: Directory<Directory<String>> =
+    Directory() //Директория с архивами (одна на всю программу)
+
+fun main(args: Array<String>) {
+
     var nameArchive: String? =
         null //Название текущего архива (если null, то текущий - архив с архивами, т.е. главный экран)
     var nameNote: String? = null //Название текущей(выбранной) заметки
+    var menu: MutableList<String> = mutableListOf()// текущее меню
 
     while (true) {
         //Если есть выбранная заметка - показываем её (экран №5 по ТЗ)
@@ -19,45 +22,67 @@ fun main(args: Array<String>, n: String?) {
         }
         //Если есть выбранный архив - показываем его содержимое (экран №3 по ТЗ)
         if (nameArchive != null) {
+            menu = buildList {
+                add("Создать заметку")
+                addAll(dirArchive.getContent(nameArchive)?.getNamesList().orEmpty())
+                add("Выход")
+            }.toMutableList()
             printMenu(
                 nameArchive,
-                "Создать заметку",
-                "Выход",
-                dirArchive.getContent(nameArchive)?.getNamesList()
+                menu
             )
         }
         //Если нет выбранного архива - показываем список архивов (экран №1 по ТЗ)
-        else printMenu("Архивы", "Создать архив", "Выход", dirArchive.getNamesList())
+        else {
+            menu = buildList {
+                add("Создать архив")
+                addAll(dirArchive.getNamesList().orEmpty())
+                add("Выход")
+            }.toMutableList()
+            printMenu("Архивы", menu)
+        }
 
         val input = scanner.nextLine().toIntOrNull()// получаем либо число, либо null
         when (input) {
             0 -> {
-                // Создаем архив или заметку
-                println("Создаём архив или заметку")
+                if (nameArchive == null) dirArchive.add(
+                    inputString("Имя архива"),
+                    Directory()// Вместо null - добавил на этапе отладки
+                ) //Создаем пустой архив (экран №2 по ТЗ)
+                else dirArchive.getContent(nameArchive)?.add(
+                    inputString("Имя заметки"),
+                    inputString("Текст заметки")
+                ) //Создаем заметку (Экран №4 по ТЗ)
             }
+
             menu.lastIndex -> {
-                // либо выходим из программы либо переходим в меню архивов
-                println("Выход из программы.")
-                break // Прерываем цикл while
+                if (nameArchive == null) break // Прерываем цикл while
+                else nameArchive = null // Выход в главное меню
             }
+
             in 1 until menu.lastIndex -> {
-                val selectedArchiveName = menu[input]
-                println("Открываем архив: $selectedArchiveName")
-                // Переход в меню заметок этого архива
+                if (nameArchive == null) nameArchive = input?.let { menu[it] } // Переходим в архив
+                else nameNote = input?.let { menu[it] }// Открываем заметку
             }
-            else -> println("------Не верный ввод------")
+
+            else -> {
+                println("------Не верный ввод------")
+            }
         }
     }
 
 }
 
 //Выводит экраны №1 и № 3 по ТЗ
-fun printMenu(nameMenu: String, firstPosition: String, lastPosition: String, list: List<String>?) {
-    val menu = listOf(firstPosition) + list + lastPosition
+fun printMenu(
+    nameMenu: String,
+    list: List<String>?
+) {
     println("------$nameMenu------")
-    menu.forEachIndexed { index, item ->
-//            println("$index. $item")
+    list?.forEachIndexed { index, item ->
+        println("$index. $item")
     }
+
 }
 
 //Выводит заметку (экран №5 по ТЗ)
@@ -69,8 +94,8 @@ fun printNote(nameNote: String, textNote: String?) {
 }
 
 //Запрос строки (для организации экранов №2 и №4 по ТЗ)
-fun inputString(ask: String): String{
-    while (true){
+fun inputString(ask: String): String {
+    while (true) {
         println("------Введите $ask------")
         val input = scanner.nextLine().trim() //Убираем пробелы по краям
         if (input.isNotEmpty()) return input //Получаем непустую строку
