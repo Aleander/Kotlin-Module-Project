@@ -11,7 +11,7 @@ class Directory<T> {
         }
     }
     //Доступ к значению по ключу (получаем либо заметку, либо архив)
-    fun getContent(name: String): T? {
+    fun getContent(name: String?): T? {
         if (name in contentsMap) return contentsMap[name]
         else return null
     }
